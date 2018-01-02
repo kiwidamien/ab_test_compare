@@ -12,11 +12,15 @@ import jStat from 'jStat';
  about them.
 */
 
-const analyse_experiment = ( N_control, success_control, N_treatment, success_treatment, prior_alpha = 1, prior_beta = 1, threshold_of_caring = 0.001) => {
-  const prior_params = [ [prior_alpha, prior_beta], [prior_alpha, prior_beta]];
 
-  const N = [N_control, N_treatment];
-  const s = [success_control, success_treatment];
+
+const analyse_experiment = ( control_experiment, treatment_experiment, threshold_of_caring = 0.001) => {
+  // Default to a non-informative prior unless explicitly set
+  const prior_params = [ [control_experiment.alpha || 1, control_experiment.beta || 1],
+                         [treatment_experiment.alpha || 1, treatment_experiment.beta || 1]];
+
+  const N = [control_experiment.N, treatment_experiment.N];
+  const s = [control_experiment.successes, treatment_experiment.successes];
 
   let posteriors = [];
 
@@ -39,7 +43,6 @@ const analyse_experiment = ( N_control, success_control, N_treatment, success_tr
   pdf_joint = pdf_joint.multiply(1/norm_constant);
   let expectedError = 0;
   let probError = 0.0;
-  console.log(pdf_joint);
 
   if (rate[1] > rate[0]){
     for (let controlIndex = 0; controlIndex < grid_size; controlIndex++){
@@ -85,7 +88,9 @@ const analyse_experiment = ( N_control, success_control, N_treatment, success_tr
 }
 
 
-var result = analyse_experiment(200, 16, 204, 36);
+var result = analyse_experiment( { N: 200, successes: 16, alpha: 1, beta: 1},
+                                 { N: 204, successes: 36} );
+
 console.log(result);
 
 const AgileModel = ({props}) => {
